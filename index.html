@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Video Showcase</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Setup Screen -->
+    <div id="setup-screen" class="screen">
+        <div class="glass-panel">
+            <h1>Video Showcase Setup</h1>
+            <p>Select up to 6 videos and add captions for each.</p>
+            
+            <textarea id="presentation-title-input" class="title-input" placeholder="Enter Presentation Title (Optional)&#10;Press Shift+Enter for a new line" rows="2"></textarea>
+            
+            <div id="video-inputs-container">
+                <!-- Dynamically populated inputs -->
+            </div>
+            
+            <button id="add-video-btn" class="primary-btn">Add Video (0/6)</button>
+            <button id="start-btn" class="primary-btn" disabled>Start Presentation</button>
+        </div>
+    </div>
+
+    <!-- Showcase Screen -->
+    <div id="showcase-screen" class="screen hidden">
+        <div id="presentation-title-display" class="title-display hidden">
+            <h1 id="presentation-title-text"></h1>
+        </div>
+        
+        <div class="scene-container">
+            <div id="scene" class="scene">
+                <!-- Videos injected here -->
+            </div>
+        </div>
+        
+        <div id="caption-overlay" class="caption-overlay hidden">
+            <p id="caption-text"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

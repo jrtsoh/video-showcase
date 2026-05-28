@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+:root {
+    --bg-color: #0f172a;
+    --text-color: #f8fafc;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden; /* Prevent scrolling during 3D transforms */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 40px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.glass-panel h1 {
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.glass-panel p {
+    color: #94a3b8;
+    margin-bottom: 30px;
+}
+
+/* Video Input Rows */
+.video-input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.video-input-row input[type="file"] {
+    flex: 1;
+    padding: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.video-input-row input[type="text"] {
+    flex: 2;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    color: var(--text-color);
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.video-input-row input[type="text"]:focus {
+    border-color: var(--primary);
+}
+
+.remove-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.remove-btn:hover {
+    background: #dc2626;
+}
+
+/* Presentation Title Input */
+.title-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    color: var(--text-color);
+    outline: none;
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s;
+}
+
+.title-input:focus {
+    border-color: var(--primary);
+}
+
+/* Presentation Title Display */
+.title-display {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 15px 40px;
+    border-radius: 20px;
+    text-align: center;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: opacity 1s ease;
+}
+
+.title-display h1 {
+    font-weight: 600;
+    font-size: 32px;
+    letter-spacing: 1px;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.title-display.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Buttons */
+.primary-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.3s, transform 0.1s;
+}
+
+.primary-btn:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.primary-btn:disabled {
+    background: #475569;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* 3D Carousel Showcase */
+.scene-container {
+    width: 100vw;
+    height: 100vh;
+    perspective: 1200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.scene {
+    position: relative;
+    width: 600px; /* Base width of video container in 3D space */
+    height: 337.5px; /* 16:9 aspect ratio */
+    transform-style: preserve-3d;
+    transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth rotation transition */
+}
+
+.carousel-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    border: 2px solid var(--glass-border);
+    background: black;
+    /* Transition for zooming in/out */
+    transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1s, filter 1s;
+    filter: brightness(0.4); /* Dim non-focused videos */
+}
+
+.carousel-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.carousel-video-container.focused {
+    filter: brightness(1);
+}
+
+/* Zoomed-in state overrides the 3D positioning */
+.carousel-video-container.zoomed-in {
+    /* When zoomed in, it gets scaled up and pushed forward */
+    z-index: 10;
+    box-shadow: 0 0 100px rgba(0,0,0,0.8);
+    border-color: rgba(255,255,255,0.3);
+    cursor: pointer; /* Suggests clicking will pause/play */
+}
+
+/* Caption Overlay */
+.caption-overlay {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 20px 40px;
+    border-radius: 30px;
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-align: center;
+    max-width: 80%;
+    transition: opacity 1s ease, transform 1s ease;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.caption-overlay.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
+}
