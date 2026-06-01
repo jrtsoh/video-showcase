@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let videoEntries = []; // Array of { file: File, caption: string, id: number }
     let nextId = 0;
-    const MAX_VIDEOS = 6;
+    const MAX_VIDEOS = 10;
 
     function updateUI() {
         addVideoBtn.textContent = `Add Video (${videoEntries.length}/${MAX_VIDEOS})`;
