@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
     globalFileInput.addEventListener('change', (e) => {
         if (e.target.files) {
             addFiles(e.target.files);
-            // Reset input so the same files can be selected again if removed
-            globalFileInput.value = ''; 
+            // DO NOT clear globalFileInput.value = ''; here! 
+            // Clearing it destroys the underlying File Blob references in some browsers, breaking video playback.
         }
     });
 
@@ -223,6 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const video = document.createElement('video');
             video.src = entry.url;
             video.muted = true; // Often required to autoplay
+            video.setAttribute('muted', 'true');
+            video.defaultMuted = true;
             video.preload = 'auto';
             video.playsInline = true;
             
