@@ -2,98 +2,99 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Setup Screen Logic ---
     const setupScreen = document.getElementById('setup-screen');
     const showcaseScreen = document.getElementById('showcase-screen');
-    const addVideoBtn = document.getElementById('add-video-btn');
     const startBtn = document.getElementById('start-btn');
     const titleInput = document.getElementById('presentation-title-input');
     const titleDisplay = document.getElementById('presentation-title-display');
     const titleText = document.getElementById('presentation-title-text');
     const container = document.getElementById('video-inputs-container');
+    const dropZone = document.getElementById('drop-zone');
+    const globalFileInput = document.getElementById('global-file-input');
+    const videoCountText = document.getElementById('video-count-text');
     
     let videoEntries = []; // Array of { file: File, caption: string, id: number }
     let nextId = 0;
     const MAX_VIDEOS = 10;
 
     function updateUI() {
-        addVideoBtn.textContent = `Add Video (${videoEntries.length}/${MAX_VIDEOS})`;
-        addVideoBtn.disabled = videoEntries.length >= MAX_VIDEOS;
+        videoCountText.textContent = `Added ${videoEntries.length}/${MAX_VIDEOS} videos`;
         
-        // Start is enabled if there is at least 1 video, and all have files attached
-        const canStart = videoEntries.length > 0 && videoEntries.every(v => v.file !== null);
-        startBtn.disabled = !canStart;
+        // Disable file input if max is reached
+        globalFileInput.disabled = videoEntries.length >= MAX_VIDEOS;
+        if (videoEntries.length >= MAX_VIDEOS) {
+            dropZone.style.opacity = '0.5';
+            dropZone.style.cursor = 'not-allowed';
+        } else {
+            dropZone.style.opacity = '1';
+            dropZone.style.cursor = 'pointer';
+        }
+        
+        // Start is enabled if there is at least 1 video
+        startBtn.disabled = videoEntries.length === 0;
+    }
+    
+    function addFiles(files) {
+        for (let file of files) {
+            if (videoEntries.length >= MAX_VIDEOS) {
+                alert(`Maximum of ${MAX_VIDEOS} videos reached.`);
+                break;
+            }
+            if (!file.type.startsWith('video/')) continue;
+            createVideoInputRow(file);
+        }
     }
 
-    function createVideoInputRow() {
+    // Drop Zone Event Listeners
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (videoEntries.length < MAX_VIDEOS) {
+            dropZone.classList.add('drag-over');
+        }
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        if (e.dataTransfer.files) {
+            addFiles(e.dataTransfer.files);
+        }
+    });
+
+    globalFileInput.addEventListener('change', (e) => {
+        if (e.target.files) {
+            addFiles(e.target.files);
+            // Reset input so the same files can be selected again if removed
+            globalFileInput.value = ''; 
+        }
+    });
+
+    function createVideoInputRow(file) {
         const id = nextId++;
-        videoEntries.push({ id, file: null, caption: '', url: null, played: false });
+        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+        const url = URL.createObjectURL(file);
+        
+        videoEntries.push({ id, file, caption: nameWithoutExt, url, played: false });
         
         const row = document.createElement('div');
         row.className = 'video-input-row';
         row.dataset.id = id;
         
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'video/*';
-        fileInput.multiple = true;
+        const filenameBadge = document.createElement('div');
+        filenameBadge.className = 'filename-badge';
+        filenameBadge.textContent = file.name;
+        filenameBadge.title = file.name;
         
         const captionInput = document.createElement('input');
         captionInput.type = 'text';
+        captionInput.value = nameWithoutExt;
         captionInput.placeholder = 'Enter caption...';
         
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-btn';
         removeBtn.textContent = 'X';
-        
-        fileInput.addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            if (files.length === 0) return;
-            
-            // Handle the first file in the current row
-            const firstFile = files[0];
-            const entry = videoEntries.find(v => v.id === id);
-            if (entry) {
-                entry.file = firstFile;
-                entry.url = URL.createObjectURL(firstFile);
-                
-                // Auto-fill caption with filename without extension
-                const nameWithoutExt = firstFile.name.replace(/\.[^/.]+$/, "");
-                entry.caption = nameWithoutExt;
-                captionInput.value = nameWithoutExt;
-                
-                // Set the file input to only contain this single file for visual consistency
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(firstFile);
-                fileInput.files = dataTransfer.files;
-            }
-            
-            // Handle any additional files by creating new rows automatically
-            for (let i = 1; i < files.length; i++) {
-                if (videoEntries.length >= MAX_VIDEOS) break;
-                
-                const newRowId = nextId; 
-                createVideoInputRow(); // creates an empty row
-                
-                const newEntry = videoEntries.find(v => v.id === newRowId);
-                if (newEntry) {
-                    const nextFile = files[i];
-                    newEntry.file = nextFile;
-                    newEntry.url = URL.createObjectURL(nextFile);
-                    
-                    const nextNameWithoutExt = nextFile.name.replace(/\.[^/.]+$/, "");
-                    newEntry.caption = nextNameWithoutExt;
-                    
-                    const newRowDOM = container.lastElementChild;
-                    const newFileInput = newRowDOM.querySelector('input[type="file"]');
-                    const newCaptionInput = newRowDOM.querySelector('input[type="text"]');
-                    
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(nextFile);
-                    newFileInput.files = dataTransfer.files;
-                    
-                    newCaptionInput.value = nextNameWithoutExt;
-                }
-            }
-            updateUI();
-        });
         
         captionInput.addEventListener('input', (e) => {
             const entry = videoEntries.find(v => v.id === id);
@@ -108,15 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
         });
         
-        row.appendChild(fileInput);
+        row.appendChild(filenameBadge);
         row.appendChild(captionInput);
         row.appendChild(removeBtn);
         container.appendChild(row);
         
         updateUI();
     }
-
-    addVideoBtn.addEventListener('click', createVideoInputRow);
     
     // Title input enter logic
     titleInput.addEventListener('keydown', (e) => {

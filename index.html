@@ -15,11 +15,16 @@
             
             <textarea id="presentation-title-input" class="title-input" placeholder="Enter Presentation Title (Optional)&#10;Press Shift+Enter for a new line" rows="2">Strategic Information / Insights & Analytics</textarea>
             
+            <div id="drop-zone" class="drop-zone">
+                <p>Drag & Drop up to 10 videos here<br><span style="font-size: 14px; font-weight: normal;">or click to browse</span></p>
+                <input type="file" id="global-file-input" multiple accept="video/*">
+            </div>
+            
             <div id="video-inputs-container">
                 <!-- Dynamically populated inputs -->
             </div>
             
-            <button id="add-video-btn" class="primary-btn">Add Video (0/10)</button>
+            <p id="video-count-text" style="color: #94a3b8; font-size: 14px; margin-top: 15px; margin-bottom: 0;">Added 0/10 videos</p>
             <button id="start-btn" class="primary-btn" disabled>Start Presentation</button>
         </div>
     </div>
