@@ -328,11 +328,22 @@ document.addEventListener('DOMContentLoaded', () => {
         videoElements.forEach(v => v.container.classList.remove('focused'));
         selected.container.classList.add('focused', 'zoomed-in');
         
-        // Dynamically calculate the scale needed to fill ~85% of the screen
-        const targetScale = Math.min(window.innerWidth / 600, window.innerHeight / 337.5) * 0.85;
-        // Since translateZ(400px) provides a natural 1.5x zoom due to perspective (1200 / 800)
-        const cssScale = targetScale / 1.5;
-        selected.container.style.transform = `${selected.entry.baseTransform} translateZ(400px) scale(${cssScale})`;
+        // --- Zoom the selected video forward to fill the screen ---
+        // The scene applies translateZ(-radius) and every container applies translateZ(radius),
+        // so those two cancel out: the ONLY depth that affects the zoomed size is ZOOM_Z below.
+        // That keeps the on-screen size identical no matter how many videos are on the ring.
+        const PERSPECTIVE = 1200;  // must match .scene-container perspective in style.css
+        const ZOOM_Z = 400;        // how far the video travels toward the camera
+        const BASE_W = 600;        // must match .scene width in style.css
+        const BASE_H = 337.5;      // must match .scene height (16:9)
+        const FILL = 0.92;         // fraction of the viewport the video should occupy
+
+        // Perspective foreshortening already magnifies an element at ZOOM_Z by this factor,
+        // so we divide it out to land on the exact final size we want.
+        const perspectiveMag = PERSPECTIVE / (PERSPECTIVE - ZOOM_Z);
+        const fitScale = Math.min(window.innerWidth / BASE_W, window.innerHeight / BASE_H) * FILL;
+        const cssScale = fitScale / perspectiveMag;
+        selected.container.style.transform = `${selected.entry.baseTransform} translateZ(${ZOOM_Z}px) scale(${cssScale})`;
         
         // Show caption
         if (selected.entry.caption) {
