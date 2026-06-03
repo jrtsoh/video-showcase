@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reset rotation and transition
             currentRotation = 0;
             scene.style.transition = 'none';
-            scene.style.transform = `rotateY(0deg)`;
+            scene.style.transform = `translateZ(0px) rotateY(0deg)`;
             
             // Hide overlays
             captionOverlay.classList.add('hidden');
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Spin at ~30 degrees per second
             currentRotation -= (30 * delta) / 1000; 
-            scene.style.transform = `rotateY(${currentRotation}deg)`;
+            scene.style.transform = `translateZ(-${radius}px) rotateY(${currentRotation}deg)`;
             
             spinRequestId = requestAnimationFrame(animate);
         }
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Apply rotation to scene via CSS transition
         scene.style.transition = 'transform 2s cubic-bezier(0.25, 1, 0.5, 1)';
-        scene.style.transform = `rotateY(${currentRotation}deg)`;
+        scene.style.transform = `translateZ(-${radius}px) rotateY(${currentRotation}deg)`;
         
         // Wait for rotation to finish, then zoom
         zoomTimeoutId = setTimeout(() => {
@@ -294,8 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // The container is at rotateY(A) translateZ(R).
         // To make it bigger and closer, we can increase scale and Z.
-        // 1.5x scale, plus translating it forward by say 400px
-        selected.container.style.transform = `${selected.entry.baseTransform} translateZ(400px) scale(1.6)`;
+        // We adjusted translateZ and scale to ensure it fits nicely on all screens.
+        selected.container.style.transform = `${selected.entry.baseTransform} translateZ(200px) scale(1.2)`;
         
         // Show caption
         if (selected.entry.caption) {
