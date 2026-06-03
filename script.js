@@ -328,16 +328,11 @@ document.addEventListener('DOMContentLoaded', () => {
         videoElements.forEach(v => v.container.classList.remove('focused'));
         selected.container.classList.add('focused', 'zoomed-in');
         
-        // Calculate zoom transform
-        // We need it to break out of the 3D circle and come straight to the camera.
-        // We negate its base rotation and bring it forward.
-        // Actually, since the scene is already rotated such that this item is facing front,
-        // we can just scale it and translate Z relative to its container.
-        
-        // The container is at rotateY(A) translateZ(R).
-        // To make it bigger and closer, we can increase scale and Z.
-        // We adjusted translateZ and scale to ensure it fits nicely on all screens.
-        selected.container.style.transform = `${selected.entry.baseTransform} translateZ(200px) scale(1.2)`;
+        // Dynamically calculate the scale needed to fill ~85% of the screen
+        const targetScale = Math.min(window.innerWidth / 600, window.innerHeight / 337.5) * 0.85;
+        // Since translateZ(400px) provides a natural 1.5x zoom due to perspective (1200 / 800)
+        const cssScale = targetScale / 1.5;
+        selected.container.style.transform = `${selected.entry.baseTransform} translateZ(400px) scale(${cssScale})`;
         
         // Show caption
         if (selected.entry.caption) {

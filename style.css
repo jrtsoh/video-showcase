@@ -180,27 +180,31 @@ body {
 /* Presentation Title Display */
 .title-display {
     position: absolute;
-    top: 40px;
+    top: 30px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
-    padding: 15px 40px;
-    border-radius: 20px;
+    padding: 12px 30px;
+    border-radius: 12px;
     text-align: center;
     z-index: 20;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     transition: opacity 1s ease;
+    max-width: 90vw;
+    overflow: hidden;
 }
 
 .title-display h1 {
-    font-weight: 600;
-    font-size: 32px;
-    letter-spacing: 1px;
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: 2px;
     margin: 0;
-    white-space: pre-wrap;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .title-display.hidden {
