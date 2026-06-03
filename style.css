@@ -295,23 +295,29 @@ body {
 /* Caption Overlay */
 .caption-overlay {
     position: absolute;
-    bottom: 50px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--glass-bg);
+    /* Solid dark pill so the text stays readable over ANY video color,
+       instead of the white-tinted glass which washed out over light videos. */
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    padding: 20px 40px;
-    border-radius: 30px;
-    font-size: 24px;
-    font-weight: 300;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    /* Compact padding keeps the pill to a thin strip so it barely covers the video. */
+    padding: 10px 24px;
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 400;
     letter-spacing: 1px;
     text-align: center;
+    /* Second layer of safety: a dark halo on the glyphs themselves. */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     max-width: 80%;
     transition: opacity 1s ease, transform 1s ease;
     z-index: 20;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .caption-overlay.hidden {
