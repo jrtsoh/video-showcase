@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = 'video/*';
+        fileInput.multiple = true;
         
         const captionInput = document.createElement('input');
         captionInput.type = 'text';
@@ -43,12 +44,52 @@ document.addEventListener('DOMContentLoaded', () => {
         removeBtn.textContent = 'X';
         
         fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            
+            // Handle the first file in the current row
+            const firstFile = files[0];
             const entry = videoEntries.find(v => v.id === id);
             if (entry) {
-                entry.file = file;
-                if (file) {
-                    entry.url = URL.createObjectURL(file);
+                entry.file = firstFile;
+                entry.url = URL.createObjectURL(firstFile);
+                
+                // Auto-fill caption with filename without extension
+                const nameWithoutExt = firstFile.name.replace(/\.[^/.]+$/, "");
+                entry.caption = nameWithoutExt;
+                captionInput.value = nameWithoutExt;
+                
+                // Set the file input to only contain this single file for visual consistency
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(firstFile);
+                fileInput.files = dataTransfer.files;
+            }
+            
+            // Handle any additional files by creating new rows automatically
+            for (let i = 1; i < files.length; i++) {
+                if (videoEntries.length >= MAX_VIDEOS) break;
+                
+                const newRowId = nextId; 
+                createVideoInputRow(); // creates an empty row
+                
+                const newEntry = videoEntries.find(v => v.id === newRowId);
+                if (newEntry) {
+                    const nextFile = files[i];
+                    newEntry.file = nextFile;
+                    newEntry.url = URL.createObjectURL(nextFile);
+                    
+                    const nextNameWithoutExt = nextFile.name.replace(/\.[^/.]+$/, "");
+                    newEntry.caption = nextNameWithoutExt;
+                    
+                    const newRowDOM = container.lastElementChild;
+                    const newFileInput = newRowDOM.querySelector('input[type="file"]');
+                    const newCaptionInput = newRowDOM.querySelector('input[type="text"]');
+                    
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(nextFile);
+                    newFileInput.files = dataTransfer.files;
+                    
+                    newCaptionInput.value = nextNameWithoutExt;
                 }
             }
             updateUI();
