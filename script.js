@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const globalFileInput = document.getElementById('global-file-input');
     const videoCountText = document.getElementById('video-count-text');
     
-    let videoEntries = []; // Array of { file: File, caption: string, id: number }
+    let videoEntries = []; // Array of { id, file, url, played }
     let nextId = 0;
     const MAX_VIDEOS = 10;
 
@@ -73,10 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createVideoInputRow(file) {
         const id = nextId++;
-        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
         const url = URL.createObjectURL(file);
-        
-        videoEntries.push({ id, file, caption: nameWithoutExt, url, played: false });
+
+        videoEntries.push({ id, file, url, played: false });
         
         const row = document.createElement('div');
         row.className = 'video-input-row';
@@ -86,31 +85,18 @@ document.addEventListener('DOMContentLoaded', () => {
         filenameBadge.className = 'filename-badge';
         filenameBadge.textContent = file.name;
         filenameBadge.title = file.name;
-        
-        const captionInput = document.createElement('input');
-        captionInput.type = 'text';
-        captionInput.value = nameWithoutExt;
-        captionInput.placeholder = 'Enter caption...';
-        
+
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-btn';
         removeBtn.textContent = 'X';
-        
-        captionInput.addEventListener('input', (e) => {
-            const entry = videoEntries.find(v => v.id === id);
-            if (entry) {
-                entry.caption = e.target.value;
-            }
-        });
-        
+
         removeBtn.addEventListener('click', () => {
             videoEntries = videoEntries.filter(v => v.id !== id);
             row.remove();
             updateUI();
         });
-        
+
         row.appendChild(filenameBadge);
-        row.appendChild(captionInput);
         row.appendChild(removeBtn);
         container.appendChild(row);
         
@@ -144,8 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Showcase / Carousel Logic ---
     const scene = document.getElementById('scene');
-    const captionOverlay = document.getElementById('caption-overlay');
-    const captionText = document.getElementById('caption-text');
     const playerOverlay = document.getElementById('player-overlay');
     const playerVideo = document.getElementById('player-video');
 
@@ -213,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
             scene.style.transform = `translateZ(0px) rotateY(0deg)`;
             
             // Hide overlays
-            captionOverlay.classList.add('hidden');
             titleDisplay.classList.add('hidden');
         }
     });
@@ -357,12 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playerOverlay.classList.add('active'); // triggers the CSS zoom-in animation
         playerVideo.play().catch(e => console.error("Playback failed:", e));
 
-        // Show caption
-        if (selected.entry.caption) {
-            captionText.textContent = selected.entry.caption;
-            captionOverlay.classList.remove('hidden');
-        }
-
         // Listen for end
         playerVideo.onended = () => {
             playerVideo.onended = null;
@@ -371,8 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function zoomOutAndResume(selected) {
-        // Hide caption and zoom the player back out.
-        captionOverlay.classList.add('hidden');
+        // Zoom the player back out.
         playerOverlay.classList.remove('active');
         selected.container.classList.remove('focused');
 
