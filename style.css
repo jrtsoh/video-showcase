@@ -292,6 +292,46 @@ body {
     cursor: pointer; /* Suggests clicking will pause/play */
 }
 
+/* Fullscreen Player Overlay */
+.player-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    /* Dim the spinning carousel behind so the playing video is the focus. */
+    background: rgba(2, 6, 23, 0);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease, background 0.6s ease;
+}
+
+.player-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+    background: rgba(2, 6, 23, 0.85);
+}
+
+.player-overlay video {
+    /* Large layout box (no upscaling): the video renders at full resolution. */
+    width: 92vw;
+    height: 92vh;
+    object-fit: contain;
+    background: black;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
+    cursor: pointer; /* click to pause/play */
+    /* Zoom-in animation: scale DOWN a large element, so it's sharp the whole way. */
+    transform: scale(0.6);
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.player-overlay.active video {
+    transform: scale(1);
+}
+
 /* Caption Overlay */
 .caption-overlay {
     position: absolute;
@@ -316,7 +356,7 @@ body {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     max-width: 80%;
     transition: opacity 1s ease, transform 1s ease;
-    z-index: 20;
+    z-index: 40; /* above the fullscreen player overlay (z-index 30) */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 

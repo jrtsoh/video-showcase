@@ -146,7 +146,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const scene = document.getElementById('scene');
     const captionOverlay = document.getElementById('caption-overlay');
     const captionText = document.getElementById('caption-text');
-    
+    const playerOverlay = document.getElementById('player-overlay');
+    const playerVideo = document.getElementById('player-video');
+
+    // Click the playing video to pause/resume it.
+    playerVideo.addEventListener('click', () => {
+        if (playerVideo.paused) {
+            playerVideo.play().catch(e => console.error('Playback failed:', e));
+        } else {
+            playerVideo.pause();
+        }
+    });
+
     let currentRotation = 0;
     let isSpinning = false;
     let spinRequestId = null;
@@ -184,7 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 v.video.pause();
                 v.video.onended = null;
             });
-            
+
+            // Tear down the fullscreen player
+            playerVideo.onended = null;
+            playerVideo.pause();
+            playerVideo.removeAttribute('src');
+            playerVideo.load();
+            playerOverlay.classList.remove('active');
+
             // Reset DOM & state
             scene.innerHTML = '';
             videoElements = [];
@@ -324,61 +342,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function zoomInAndPlay(selected) {
-        // Highlight logic
+        // Highlight the selected tile in the ring behind the player.
         videoElements.forEach(v => v.container.classList.remove('focused'));
-        selected.container.classList.add('focused', 'zoomed-in');
-        
-        // --- Zoom the selected video forward to fill the screen ---
-        // The scene applies translateZ(-radius) and every container applies translateZ(radius),
-        // so those two cancel out: the ONLY depth that affects the zoomed size is ZOOM_Z below.
-        // That keeps the on-screen size identical no matter how many videos are on the ring.
-        const PERSPECTIVE = 1200;  // must match .scene-container perspective in style.css
-        const ZOOM_Z = 400;        // how far the video travels toward the camera
-        const BASE_W = 600;        // must match .scene width in style.css
-        const BASE_H = 337.5;      // must match .scene height (16:9)
-        const FILL = 0.92;         // fraction of the viewport the video should occupy
+        selected.container.classList.add('focused');
 
-        // Perspective foreshortening already magnifies an element at ZOOM_Z by this factor,
-        // so we divide it out to land on the exact final size we want.
-        const perspectiveMag = PERSPECTIVE / (PERSPECTIVE - ZOOM_Z);
-        const fitScale = Math.min(window.innerWidth / BASE_W, window.innerHeight / BASE_H) * FILL;
-        const cssScale = fitScale / perspectiveMag;
-        selected.container.style.transform = `${selected.entry.baseTransform} translateZ(${ZOOM_Z}px) scale(${cssScale})`;
-        
+        // Hide the title header while a video plays so it doesn't cover anything.
+        titleDisplay.classList.add('hidden');
+
+        // Play the selected video in the dedicated fullscreen player. Its layout box
+        // is 92vw x 92vh, so the browser renders the video at full size with NO upscaling
+        // of a small tile -> the picture stays sharp regardless of how it was zoomed.
+        playerVideo.src = selected.entry.url;
+        playerVideo.currentTime = 0;
+        playerOverlay.classList.add('active'); // triggers the CSS zoom-in animation
+        playerVideo.play().catch(e => console.error("Playback failed:", e));
+
         // Show caption
         if (selected.entry.caption) {
             captionText.textContent = selected.entry.caption;
             captionOverlay.classList.remove('hidden');
         }
-        
-        // Play video
-        selected.video.currentTime = 0;
-        selected.video.play().catch(e => console.error("Playback failed:", e));
-        
+
         // Listen for end
-        selected.video.onended = () => {
-            selected.video.onended = null;
+        playerVideo.onended = () => {
+            playerVideo.onended = null;
             zoomOutAndResume(selected);
         };
     }
-    
+
     function zoomOutAndResume(selected) {
-        // Hide caption
+        // Hide caption and zoom the player back out.
         captionOverlay.classList.add('hidden');
-        
-        // Revert zoom
-        selected.container.classList.remove('zoomed-in', 'focused');
-        selected.container.style.transform = selected.entry.baseTransform;
-        
-        // Wait for zoom out transition, then resume spin
+        playerOverlay.classList.remove('active');
+        selected.container.classList.remove('focused');
+
+        // Wait for the zoom-out transition, then resume the carousel.
         resumeTimeoutId = setTimeout(() => {
+            playerVideo.pause();
+            playerVideo.removeAttribute('src');
+            playerVideo.load(); // release the decoded frame
+
             // Remove scene transition so manual requestAnimationFrame doesn't fight it
             scene.style.transition = 'none';
             startSpinning();
-            
+
+            // Bring the title header back now that the carousel is spinning again
+            // (only if a title was set).
+            if (titleText.textContent.trim()) {
+                titleDisplay.classList.remove('hidden');
+            }
+
             // Schedule next selection
             nextSelectTimeoutId = setTimeout(selectNextVideo, 4000);
-        }, 1500); // 1.5s matches CSS transition duration
+        }, 800); // matches the CSS player transition duration
     }
     
     // Add one initial row automatically

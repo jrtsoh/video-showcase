@@ -40,7 +40,13 @@
                 <!-- Videos injected here -->
             </div>
         </div>
-        
+
+        <!-- Fullscreen player: the selected video plays here at full resolution
+             (no CSS upscaling of a small carousel tile), so it stays sharp. -->
+        <div id="player-overlay" class="player-overlay">
+            <video id="player-video" playsinline></video>
+        </div>
+
         <div id="caption-overlay" class="caption-overlay hidden">
             <p id="caption-text"></p>
         </div>
